@@ -1,0 +1,97 @@
+
+/* General styling */
+body { 
+    font-family: Arial, sans-serif; 
+    margin: 0; 
+    padding: 0; 
+    background-color: #f4f4f4; 
+}
+
+/* Navbar Styling */
+.navbar {
+    background-color: #4CAF50;
+}
+
+.navbar .logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+}
+
+/* Navbar Links */
+.navbar .nav-links a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.navbar .nav-links a:hover {
+    background-color: #3e8e41;
+}
+
+/* Toggle button styling for small screens */
+.navbar-toggle {
+    background-color: #4CAF50;
+    color: white;
+    font-size: 30px;
+    border: none;
+    cursor: pointer;
+    display: none;
+    padding: 5px;
+}
+
+.navbar-toggle:focus {
+    outline: none;
+}
+
+/* Main Form Container */
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Element Styling */
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.form-control {
+    margin-bottom: 15px;
+}
+
+button[type="submit"] {
+    width: 100%;
+    background-color: #343a40;
+    font-weight: bold;
+}
+
+/* Responsive styling for navbar on small screens */
+@media (max-width: 768px) {
+    .navbar .nav-links {
+        display: none;
+        width: 100%;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .navbar-toggle {
+        display: block;
+        margin-left: auto;
+    }
+
+    .navbar .nav-links.active {
+        display: block;
+    }
+}

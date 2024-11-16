@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
+    <title>Body Fat Prediction</title>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Body Fat Estimator</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('About') }}">About Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('Contact') }}">Contact Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('result') }}">Results</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Form Container -->
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Body Fat Estimation</h2>
+        <form action="/predict" method="POST" class="p-3 bg-white rounded shadow-sm">
+            
+        
+<!-- Gender Selection -->
+        <div class="form-group">
+            <label>Gender:</label><br>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="gender" id="male" value="male" required>
+                <label class="form-check-label" for="male">Male</label>
+            </div>
+
+          <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="gender" id="female" value="female" required>
+                <label class="form-check-label" for="female">Female</label>
+            </div>
+            
+            <div class="form-group">
+                <label for="Chest">Chest:</label>
+                <input type="number" step="any" name="Chest" required class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="Hip">Hip:</label>
+                <input type="number" step="any" name="Hip" required class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="Weight">Weight (kg):</label>
+                <input type="number" name="Weight" step="any" required class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="Abdomen">Abdomen:</label>
+                <input type="number" step="any" name="Abdomen" required class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="Density">Density:</label>
+                <input type="number" step="any" name="Density" required class="form-control">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Predict Body Fat</button>
+        </form>
+    </div>
+
+    <!-- Include Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

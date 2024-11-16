@@ -1,0 +1,156 @@
+body { 
+    font-family: Arial, sans-serif; 
+    margin: 0; 
+    padding: 0; 
+    background-color: #f4f4f4; 
+}
+/* Main Container */
+.container { 
+    width: 60%; 
+    margin: 50px auto; 
+    background-color: #fff; 
+    padding: 30px; 
+    border-radius: 10px; 
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); 
+    text-align: center;
+    font-size: 1.2em;
+    color: #333;
+}
+
+/* Heading Style */
+.container h1 {
+    color: #4CAF50;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+/* Prediction Text */
+.container p {
+    font-size: 1.5em;
+    margin: 20px 0;
+    color: #555;
+}
+
+/* Highlight the prediction value */
+.container p strong {
+    font-size: 1.0em;
+    color: black; 
+    font-weight: bold;
+    /* Same color as the heading for emphasis */
+}
+
+/* Back to Home Button */
+.btn-back {
+    display: inline-block;
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 25px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-top: 30px;
+}
+
+.btn-back:hover {
+    background-color: #45a049;
+    outline: none;         /* Removes the outline on focus */
+    text-decoration: none; /* Removes the underline */
+    color: white;   
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        width: 90%;  /* Full width for smaller screens */
+        padding: 20px;
+    }
+/* Prediction Result*/
+    .container h1 {
+        font-size: 1.2em;
+    }
+
+    /* your estimated body fat*/
+    .container p {
+        font-size: 0.8em;
+    }
+
+    .btn-back {
+        padding: 10px 20px;
+        font-size: 1em;
+    }
+}
+
+
+/* Navbar Styling */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #4CAF50;
+    padding: 10px 20px;
+    flex-wrap: wrap;
+}
+
+.navbar .logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+}
+
+/* Navbar Links */
+.navbar .nav-links {
+    display: flex;
+    gap: 15px;
+}
+
+.navbar .nav-links a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    margin: 0 5px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.navbar .nav-links a:hover {
+    background-color: #3e8e41;
+}
+
+/* Navbar Toggle Button */
+.navbar-toggle {
+    background-color: #4CAF50;
+    color: white;
+    font-size: 30px;
+    border: none;
+    cursor: pointer;
+    display: none;  /* Hidden by default */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+    margin-left: auto;  /* Align to the right */
+}
+
+.navbar-toggle:focus {
+    outline: none;
+}
+
+/* Show the toggle button and hide the links on smaller screens */
+@media (max-width: 768px) {
+    .navbar .nav-links {
+        display: none;  /* Hide nav links by default on small screens */
+        width: 100%;    /* Ensure the links take full width */
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .navbar-toggle {
+        display: block;  /* Show the hamburger icon on small screens */
+        margin-left: auto;  /* Ensure the toggle button aligns to the right */
+    }
+
+    .navbar .nav-links.active {
+        display: block;  /* Show nav links when 'active' class is added */
+    }
+}
