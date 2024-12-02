@@ -10,7 +10,7 @@ Project GUI
 5. result page.
 
 
-A pickle that is created  must be compatible in VS code.
+1. A pickle that is created  must be compatible in VS code.
 
 Issue2:
 ValueError: node array from the pickle has an incompatible dtype:
@@ -20,6 +20,25 @@ version incompatiability.
 created a proper version.
 
 
-Bad Request for result.html file Chest.
+2. Bad Request for result.html file Chest.
 
 Add css sheet in home page and about us page.
+
+
+
+3.
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+Cell In[46], line 12
+      1 # Hyperparameter tuning for Decision Tree Regressor
+      2 dt_param_grid = {
+      3     'max_depth': [5, 10, 15, None],
+      4     'min_samples_split': [2, 5, 10],
+   (...)
+     10     'min_impurity_decrease': [0.0, 0.01]
+     11 }
+---> 12 dt_grid_search = GridSearchCV(DecisionTreeRegressor(), dt_param_grid, cv=5, n_jobs=-1, verbose=1)
+     13 dt_grid_search.fit(X_train, y_train)
+     14 best_dt = dt_grid_search.best_estimator_
+
+NameError: name 'GridSearchCV' is not defined
