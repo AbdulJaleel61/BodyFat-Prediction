@@ -25,12 +25,11 @@ def predict():
     # Get form data
     chest = float(request.form['Chest'])
     hip = float(request.form['Hip'])
-    weight = float(request.form['Weight'])
     abdomen = float(request.form['Abdomen'])
     density = float(request.form['Density'])
     
     # Prepare data for prediction
-    input_features = np.array([[chest, hip, weight, abdomen, density]])
+    input_features = np.array([[chest, hip, abdomen, density]])
     
     # Make predictions with individual models
     dt_prediction = decision_tree.predict(input_features)
