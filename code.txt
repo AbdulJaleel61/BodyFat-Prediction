@@ -1,0 +1,290 @@
+# Import Libararies
+import pickle
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.neural_network import MLPRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+import numpy as np
+from sklearn.metrics import r2_score
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.tree import plot_tree
+import seaborn as sn
+import warnings
+from scipy import stats
+from sklearn.preprocessing import StandardScaler
+from tensorflow.keras.models import Sequential
+warnings.filterwarnings('ignore')
+%matplotlib inline
+
+def wrangle(df):
+    # Checking for Info.
+    df.info()
+    
+    # checking for missing values.
+    df.isnull().sum()
+    df.dropna()
+    
+     # shift column 'BodyFat' to last_position position 
+    last_position = df.pop('BodyFat')  
+    df.insert(14, 'BodyFat', last_position) 
+   
+    # Compute Z-scores for all numeric columns
+    z_scores = np.abs(stats.zscore(df.select_dtypes(include=[np.number])))  # Apply Z-score only to numeric columns
+
+    # Identify rows with Z-scores greater than 3 (or less than -3) for any column
+    outliers_z = (z_scores > 3).any(axis=1)  # 'any' returns True if any column in the row is an outlier
+
+    # Remove the outliers (keep only rows where outliers_z is False)
+    df_cl = df[~outliers_z]
+   
+   
+
+    # Optionally, save the cleaned dataset to a new CSV file
+    df_cl.to_csv('cleaned_body_fat_data.csv', index=False)
+    return df_cl
+	
+	df_cl = wrangle(pd.read_csv('bodyfat.csv'))
+	
+	
+# Example: Distribution of body fat percentage in the dataframe.
+plt.figure(figsize=(8, 5))
+sn.histplot(data_cl['BodyFat'], kde=True, color='blue', bins=20)
+plt.title('Distribution of Body Fat Percentage')
+plt.xlabel('Body Fat Percentage')
+plt.ylabel('Frequency')
+plt.show()
+
+plt.figure(figsize=(12, 8))
+sn.heatmap(data_cl.corr(), annot=True, cmap='coolwarm', fmt=".2f",vmin=-1, vmax=1)
+plt.title('Correlation Heatmap')
+plt.show()
+
+X = data_cl.drop(columns=["BodyFat"])
+X
+
+y = data_cl["BodyFat"]
+y
+
+
+# import mutual info regression.
+from sklearn.feature_selection import mutual_info_regression
+
+# instanciate mutual_info_regression.
+mr = mutual_info_regression(X, y) 
+
+plot_data = pd.Series(mr, index=X.columns)
+plot_data.plot(kind="barh", color="green")
+
+print(plot_data)
+
+def VIF():
+    temp = data_cl[list(data_cl.columns)]
+    info = pd.DataFrame()
+    # Get varianve importance score
+    info["VIF"] = [variance_inflation_factor(temp.values, i) for i in range(temp.shape[1])] 
+    info["Columns"] = temp.columns
+    return info
+
+VIF()   
+
+y = data_cl['BodyFat']
+X = data_cl[["Density","Abdomen","Hip","Chest"]]
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Build Model.
+from sklearn.metrics import mean_absolute_error
+
+y_mean = y_train.mean()
+y_mean
+
+y_pred_baseline = [y_mean] * len(y_train)
+y_pred_baseline[:5]
+
+mae_baseline = mean_absolute_error(y_train,y_pred_baseline)
+print("Mean:", round(y_train.mean(), 2))
+print("Baseline MAE:", round(mae_baseline, 2))
+
+
+# Feature Scaling
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
+print(X_train)
+print(X_test)
+
+# Hyperparameter tuning for Decision Tree Regressor
+dt_param_grid = {
+    'max_depth': [3, 5, 7],  # Reduced maximum depth to make the tree smaller
+    'min_samples_split': [5, 10],
+    'min_samples_leaf': [1, 2],
+    'max_features': ['sqrt', None],
+    'splitter': ['best'],
+    'max_leaf_nodes': [5, 10],  # Limited the maximum number of leaf nodes
+    'min_impurity_decrease': [0.0, 0.01]
+}
+dt_grid_search = RandomizedSearchCV(DecisionTreeRegressor(), dt_param_grid, n_iter=10,cv=5 ,n_jobs=-1, verbose=1, random_state=42)
+dt_grid_search.fit(X_train, y_train)
+best_dt = dt_grid_search.best_estimator_
+
+# Hyperparameter tuning for Random Forest Regressor
+rf_param_grid = {
+    'n_estimators': [100, 200],
+    'max_depth': [10, 20, None],
+    'min_samples_split': [2, 5],
+    'min_samples_leaf': [1, 2],
+    'max_features': ['auto', 'sqrt'],
+    'bootstrap': [True],
+    'oob_score': [True],
+    'warm_start': [True],
+}
+rf_grid_search = RandomizedSearchCV(RandomForestRegressor(), rf_param_grid, n_iter=10,cv=5, n_jobs=-1, verbose=1, random_state=42)
+rf_grid_search.fit(X_train, y_train)
+best_rf = rf_grid_search.best_estimator_
+
+# Hyperparameter tuning for MLP Regressor (much worse performing settings)
+mlp_param_grid = {
+    'hidden_layer_sizes': [(5,), (10,)],  # Very small hidden layers to almost eliminate model capacity
+    'activation': ['identity', 'logistic'],  # Identity or logistic functions (less effective for regression)
+    'solver': ['lbfgs'],  
+    'alpha': [10.0],  
+    'learning_rate': ['constant'],  
+    'learning_rate_init': [0.01],  
+    'max_iter': [50],  
+    'batch_size': [128],  # Extremely large batch size, which may hinder learning
+    'early_stopping': [False],  # No early stopping, which may lead to overfitting
+    'tol': [1e-1],  # High tolerance, so convergence will be very relaxed
+}
+
+mlp_grid_search = RandomizedSearchCV(MLPRegressor(max_iter=100), mlp_param_grid, cv=5, n_iter=15, n_jobs=-1, verbose=1, random_state=42)
+mlp_grid_search.fit(X_train, y_train)
+best_mlp = mlp_grid_search.best_estimator_
+
+
+# Train models with the best parameters
+best_dt.fit(X_train, y_train)
+best_rf.fit(X_train, y_train)
+best_mlp.fit(X_train, y_train)
+
+# Make predictions
+dt_predictions = best_dt.predict(X_test)
+rf_predictions = best_rf.predict(X_test)
+mlp_predictions = best_mlp.predict(X_test)
+
+# Combine predictions using simple averaging
+hybrid_predictions = (dt_predictions + rf_predictions + mlp_predictions) / 3
+
+
+mae_dt_ind = mean_absolute_error(y_test, dt_predictions)
+rmse_dt_ind = np.sqrt(mean_squared_error(y_test, dt_predictions))
+r_squared_dt = r2_score(y_test, dt_predictions)
+mse_dt = ((y_test-dt_predictions)**2).mean()
+
+
+
+mae_rf_ind = mean_absolute_error(y_test, rf_predictions)
+rmse_rf_ind = np.sqrt(mean_squared_error(y_test, rf_predictions))
+r_squared_rf = r2_score(y_test, rf_predictions)
+mse_rf = ((y_test-rf_predictions)**2).mean()
+
+
+mae_mlp_ind = mean_absolute_error(y_test, mlp_predictions)
+rmse_mlp_ind = np.sqrt(mean_squared_error(y_test, mlp_predictions))
+r_squared_mlp = r2_score(y_test, mlp_predictions)
+mse_mlp = ((y_test-mlp_predictions)**2).mean()
+
+
+# Evaluate the hybrid model.
+mae_hybrid = mean_absolute_error(y_test, hybrid_predictions)
+rmse_hybrid = np.sqrt(mean_squared_error(y_test, hybrid_predictions))
+r_squared_hybrid = r2_score(y_test, hybrid_predictions)
+mse_hybrid = ((y_test-hybrid_predictions)**2).mean()
+
+
+print("---------------Decision Tree Model----------------")
+print(f'Mean Absolute Error_dt_individual: {round(mae_dt_ind,2)}')
+print(f'Root Mean Squared Error: {round(rmse_dt_ind,2)}')
+print(f'R Squared value: {round(r_squared_dt,2)}')
+print(f'mean squared error:{round(mse_dt,2)}')
+print(f'Standard Deviation of Decision Tree: {round(np.std(dt_predictions),2)}')
+print("\n")
+
+
+print("---------------Random Forest Model----------------")
+print(f'Mean Absolute Error_rf_individual: {round(mae_rf_ind,2)}')
+print(f'Root Mean Squared Error: {round(rmse_rf_ind,2)}')
+print(f'R Squared value: {round(r_squared_rf,2)}')
+print(f'mean squared error:{round(mse_rf,2)}')
+print(f'Standard Deviation for Random Forest: {round(np.std(rf_predictions),2)}')
+print("\n")
+
+
+print("---------------MLP Model----------------")
+print(f'Mean Absolute Error_mlp_individual: {round(mae_mlp_ind,2)}')
+print(f'Root Mean Squared Error: {round(rmse_mlp_ind,2)}')
+print(f'R Squared value: {round(r_squared_mlp,2)}')
+print(f'mean squared error:{round(mse_mlp,2)}')
+print(f'Standard Deviation for MLP: {round(np.std(mlp_predictions),2)}')
+print("\n")
+
+print("---------------Hybrid Model----------------")
+print(f'Mean Absolute Error: {round(mae_hybrid,2)}')
+print(f'Root Mean Squared Error: {round(rmse_hybrid,2)}')
+print(f'R Squared value: {round(r_squared_hybrid,2)}')
+print(f'Standard Deviation for Hybrid: {round(np.std(hybrid_predictions),2)}')
+print(f'mean squared error:{round(mse_hybrid,2)}')
+
+
+# Save the hybrid model using pickle
+hybrid_model = {
+    'decision_tree': best_dt,
+    'random_forest': best_rf,
+    'mlp': best_mlp
+}
+with open('hybrid_model.pkl', 'wb') as file:
+    pickle.dump(hybrid_model, file)
+
+print("Hybrid model saved as hybrid_model.pkl")
+
+# Abdomen VS BodyFat Scatter plot.
+plt.figure(figsize=(8, 6))
+sn.regplot(x=data_cl["Abdomen"], y=data_cl["BodyFat"], data=data_cl, scatter_kws={"color": "blue"}, line_kws={"color": "red"})
+plt.title("Abdomen Circumference VS Body Fat")
+plt.xlabel("Abdomen Circumference(cm)")
+plt.ylabel("Body Fat Percentage")
+plt.grid(False)
+plt.show()
+
+# Density Determined by underwater weighing vs BodyFat
+plt.figure(figsize=(8, 6))
+sn.regplot(x=data_cl["Density"], y=data_cl["BodyFat"], data=data_cl, scatter_kws={"color": "green"}, line_kws={"color": "red"})
+plt.title("Density Determined by underwater weighing VS Body Fat")
+plt.xlabel("Density Determined by underwater weighing (Values from Siri's equation)")
+plt.ylabel("Body Fat Percentage")
+plt.grid(False)
+plt.show()
+
+# Hip VS BodyFat
+plt.figure(figsize=(8, 6))
+sn.regplot(x=data_cl["Hip"], y=data_cl["BodyFat"], data=data_cl, scatter_kws={"color": "green"}, line_kws={"color": "red"})
+plt.title("Hip Circumference VS Body Fat")
+plt.xlabel("Hip Circumference")
+plt.ylabel("Body Fat Percentage")
+plt.grid(False)
+plt.show()
+
+# Chest Circumference VS Body Fat.
+plt.figure(figsize=(8, 6))
+sn.regplot(x=data_cl["Chest"], y=data_cl["BodyFat"], data=data_cl, scatter_kws={"color": "green"}, line_kws={"color": "red"})
+plt.title("Chest Circumference VS Body Fat")
+plt.xlabel("Chest Circumference")
+plt.ylabel("Body Fat Percentage")
+plt.grid(False)
+plt.show()
